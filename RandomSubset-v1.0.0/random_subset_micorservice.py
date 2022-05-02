@@ -2,19 +2,36 @@
 # Student Name: Alex Davies
 # Assignment: Final project - microservice
 # Description: This microservice, when running, will look into a specified text file and return a random set from it.
-# Date: 4/30/22 (v1.0.0)
+# Date: 5/1/22 (v1.1.0)
 
 import random
 import time
 import json
 from os.path import exists
 
-if __name__ == "__main__":  # If this isn't being called
-    filename = "inputs.txt"  # Define the file to communicate through
+
+def run_random_subset_microservice(input_file="", output_file=""):
+    """
+    Launches the random subset microservice. It will run until it is terminated by the user or receives a kill command
+    from the input file.
+    :param input_file: (string) defines the input file that the service will read from. If no input is provided, it
+                            will assume the input file to be inputs.txt.
+    :param output_file: (string) defines the output file that the service will write to. If no input is provided, it
+                            will write to the input file.
+    :return: N/A. Writes to a text file in json format
+    """
+    if input_file != "" and type(input_file) == str:  # If a unique input file is provided
+        input_filename = input_file  # A user-provided file is being used
+    else:  # Else, use the default name
+        input_filename = "inputs.txt"  # Define the file to communicate through
+    if output_file != "" and type(output_file) == str:  # If a unique output file is provided
+        output_filename = output_file  # A user-provided file is being used
+    else:
+        output_filename = input_file  # Else, we'll write to the same file as we read
     execute = True  # Set the execution flag
     while execute:  # While we still want to execute
-        if exists(filename):  # Check if the file exists
-            file = open(filename, "r")  # Read the pipeline file
+        if exists(input_filename):  # Check if the file exists
+            file = open(input_filename, "r")  # Read the pipeline file
             try:  # Try to process the file as a JSON
                 status = json.loads(file.read())  # Get the current file value/status
             except:  # If it can't process, the input isn't a valid JSON
@@ -36,7 +53,7 @@ if __name__ == "__main__":  # If this isn't being called
                 number = 1
             outputs["output"] = random.choices(status["set"], weights=[len(status["set"])] * len(status["set"]),
                                                k=number)  # Define the random outputs
-            file = open(filename, 'w')  # Open the file to write
+            file = open(output_filename, 'w')  # Open the file to write
             json.dump(outputs, file)  # Write the outputs to the text file
             file.close()  # Close the file
             if "dwell" in status:  # If a dwell is commanded
@@ -45,3 +62,7 @@ if __name__ == "__main__":  # If this isn't being called
                 time.sleep(dt)  # Dwell for the prescribed time
         if "kill" in status:  # If a cancel is commanded
             execute = False  # Change the execution flag to false
+
+
+if __name__ == "__main__":  # If this isn't being called
+    run_random_subset_microservice()
