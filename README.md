@@ -17,6 +17,10 @@ Random Subset v1.0.0 - Release of microservice
   - As an example, a text file containing "{ "set": [1,2,3,4,5], "number": 3 }" would yield a return along the lines of "{ "output": [3,5,1] }" in which no dwell is executed and the script continues running.
   - The current assumption is that if n values are wanted in return, there are n instances avaiable of each value in the set. That is, for the example above it'd be possible to return an output of [x,x,x] (where x is any of the values in the set list).
 
-Random Subset of v1.1.0 - Updated to include testing script and features
+Random Subset v1.1.0 - Updated to include testing script and features
   - The microservice function can now take input and output file handles (to support testing functionality).
   - A testing script (random_subset_microservice_testing.py) was created to support user-created test cases. 4 test cases currently exist.
+
+Random Subset v1.2.0 - Updated commenting and read-in method.
+  - The primary microservice file was updated to revise the commenting scheme and adjust the file handling (specifically for read-in of JSON files).
+  - No changes were made to the testing file. v1.1.0 of the test script should be sufficient.
