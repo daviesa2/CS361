@@ -19,50 +19,82 @@ def run_random_subset_microservice(input_file="", output_file=""):
     :param output_file: (string) defines the output file that the service will write to. If no input is provided, it
                             will write to the input file.
     :return: N/A. Writes to a text file in json format
+
+    Text file inputs:
+    "set" - required - array or string
+    "number" - optional  - integer
+    "dwell" - optional - float
+    "kill" - optional - any
     """
-    if input_file != "" and type(input_file) == str:  # If a unique input file is provided
-        input_filename = input_file  # A user-provided file is being used
-    else:  # Else, use the default name
-        input_filename = "inputs.txt"  # Define the file to communicate through
-    if output_file != "" and type(output_file) == str:  # If a unique output file is provided
-        output_filename = output_file  # A user-provided file is being used
+    # If an input file is provided to the method and is a valid type, then set the input_file to that.
+    # Else, default to inputs.txt.
+    if input_file != "" and type(input_file) == str:
+        input_filename = input_file
     else:
-        output_filename = input_file  # Else, we'll write to the same file as we read
-    execute = True  # Set the execution flag
-    while execute:  # While we still want to execute
-        if exists(input_filename):  # Check if the file exists
-            file = open(input_filename, "r")  # Read the pipeline file
-            try:  # Try to process the file as a JSON
-                status = json.loads(file.read())  # Get the current file value/status
-            except:  # If it can't process, the input isn't a valid JSON
-                print("Input is empty. Verify contents of inputs.txt.")  # Warning
-                status = dict()  # Set status to an empty dictionary
-                pass  # Continue on
-            file.close()  # Close the file
-        else:  # Else the file doesn't exist
-            print("No input file exists. Check directory for inputs.txt.")  # Print a warning to the user
-            status = dict()  # Set status as an empty dictionary
-        if type(dict()) != type(status):  # If the input isn't a dictionary
-            print("Input is not in JSON format. Verify input format in inputs.txt.")  # Print warning (not valid JSON)
-            status = dict()  # Set as an empty dictionary
-        outputs = dict()  # Initialize a dictionary to store outputs in
-        if "set" in status:  # If the JSON has an input set
-            if "number" in status:  # If a number to pick from is specified
-                number = status["number"]  # Set the number to pick as the input value
-            else:  # Else, just return 1
+        input_filename = "inputs.txt"
+
+    # If an output file is provided to the method and is a valid type, then set the output_file to that.
+    # Else, default to the input file.
+    if output_file != "" and type(output_file) == str:
+        output_filename = output_file
+    else:
+        output_filename = input_filename
+
+    # Begin looping while the execute flag is true
+    execute = True
+    while execute:
+
+        # If the the input file exists (in the directory), then try to open it as a JSON and store contents as status
+        # If it can't be opened as a JSON, create an empty dictionary for the status (file value)
+        # If no file exists with that name in the directory, then print a warning.
+        if exists(input_filename):
+            file = open(input_filename, "r")
+            try:
+                status = json.load(file)
+            except:
+                print('File is not in JSON format. Check input.')
+                status = dict()
+                pass
+            file.close()
+        else:
+            print("No input file exists. Check directory for inputs.txt.")
+            status = dict()
+
+        # If the file contents aren't in JSON format (not a dictionary), then print a warning.
+        if type(dict()) != type(status):
+            print("Input is not in JSON format. Verify input format in inputs.txt.")
+            status = dict()
+
+        # Initialize an output dictionary to store results in.
+        # If the input contains a set, indicated by "set" as a key, then pick a random number from the set.
+        outputs = dict()
+        if "set" in status:
+
+            # If there is a number defined in the input file, which controls number selected from subset, then assign it
+            # Else, assign the default value of 1.
+            if "number" in status:
+                number = status["number"]
+            else:
                 number = 1
+
             outputs["output"] = random.choices(status["set"], weights=[len(status["set"])] * len(status["set"]),
-                                               k=number)  # Define the random outputs
-            file = open(output_filename, 'w')  # Open the file to write
-            json.dump(outputs, file)  # Write the outputs to the text file
-            file.close()  # Close the file
-            if "dwell" in status:  # If a dwell is commanded
-                dt = status["dwell"]  # Define the dwell time
-                print(f"Dwelling for {dt} seconds...")  # Print a notice that the script is dwelling
-                time.sleep(dt)  # Dwell for the prescribed time
+                                               k=number)
+
+            # Write the output (dictionary) in JSON format to the output file.
+            file = open(output_filename, 'w')
+            json.dump(outputs, file)
+            file.close()
+
+            # If a dwell command is provided by the user via the key "dwell", then pause for the provided time.
+            if "dwell" in status:
+                dt = status["dwell"]
+                print(f"Dwelling for {dt} seconds...")
+                time.sleep(dt)
+
+        # If a kill command is provided via the key "kill", then set the execution flag to false.
         if "kill" in status:  # If a cancel is commanded
             execute = False  # Change the execution flag to false
 
 
-if __name__ == "__main__":  # If this isn't being called
+if __name__ == "__main__":  # If this file isn't being called, then run the microservice
     run_random_subset_microservice()
