@@ -1,1 +1,0 @@
-{"options":[{"pick":"Restaurant A"}, {"pick": "Restaurant B"}, {"pick": "Restaurant C"}, {"pick": "Restaurant D"}, {"pick": "Restaurant E"}, {"pick": "Restaurant F"}, {"pick": "Restaurant G"}, {"pick": "Restaurant H"}]}
